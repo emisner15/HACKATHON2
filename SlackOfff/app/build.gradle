@@ -32,4 +32,5 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
     }
 
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 }
