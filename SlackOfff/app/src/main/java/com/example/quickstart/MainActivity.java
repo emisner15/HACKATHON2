@@ -120,7 +120,7 @@ public class MainActivity extends Activity
 
         activityLayout.addView(mUserLogin);
         activityLayout.addView(mCallApiButton);
-/*
+        Intent intent = new Intent(this, loggedIn.class);
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
         mOutputText.setPadding(16, 16, 16, 16);
@@ -129,7 +129,7 @@ public class MainActivity extends Activity
         mOutputText.setText(
                 "Click the \'" + BUTTON_TEXT +"\' button to test the API.");
         activityLayout.addView(mOutputText);
-*/
+
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Google Calendar API ...");
 
@@ -382,6 +382,10 @@ public class MainActivity extends Activity
             // List the next 10 events from the primary calendar.
             DateTime now = new DateTime(System.currentTimeMillis());
             List<String> eventStrings = new ArrayList<String>();
+            ArrayList<String> dateList = new ArrayList<String>();
+            ArrayList<String> startList = new ArrayList<String>();
+            ArrayList<String> endList = new ArrayList<String>();
+            ArrayList<String> nameList = new ArrayList<String>();
             Events events = mService.events().list("primary")
                     .setMaxResults(12)
                     .setTimeMin(now)
@@ -415,6 +419,8 @@ public class MainActivity extends Activity
                 String betaEnd = splitEnd[1];
                 String mEndTime = betaEnd.substring(0,8);
 
+
+
                 //create current date to compare in if-statement
 
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -424,9 +430,15 @@ public class MainActivity extends Activity
                 Log.i(TAG,  "mStartDate is " + mStartDate);
                 Log.i(TAG, "mStartDate == currentDate? " + currentDate.equals(mStartDate));
                 if(mStartDate.equals(currentDate)){
-                    Classes mClasses = new Classes(mStartTime, mEndTime, mStartDate,mClass);
+                   // Classes mClasses = new Classes(mStartTime, mEndTime, mStartDate,mClass);
 
-                    myClasses.add(mClasses);
+                    //myClasses.add(mClasses);
+
+                    dateList.add(mStartDate);
+                    startList.add(mStartTime);
+                    endList.add(mEndTime);
+                    nameList.add(mClass);
+
                     Log.i(TAG,  "Size of myClasses is:  " + myClasses.get(0).class_name);
 
                 }
@@ -434,7 +446,7 @@ public class MainActivity extends Activity
 
                 //Log.i(TAG, "My end is: " + myEnd );
                 eventStrings.add(
-                        String.format("%s (%s)", start, end));
+                        String.format("%s (%s)", mStartTime, mEndTime));
 
                 Log.i(TAG,  "Size of myClasses is:  " + myClasses.size());
             }
@@ -452,11 +464,16 @@ public class MainActivity extends Activity
             //Log.i(TAG, "eventStrings is: " + eventStrings );
             //List<Classes> myClasses = new ArrayList<Classes>();
 
+/*
 
+            Intent intent = new Intent(this, loggedIn.class);
 
-
-
-            return eventStrings;
+            intent.putExtra("dateList",dateList);
+            intent.putExtra("startList",startList);
+            intent.putExtra("endList",endList);8/
+            intent.putExtra("nameList",nameList);
+*/
+            return dateList;
         }
 
         //
