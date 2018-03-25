@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -39,8 +40,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import pub.devrel.easypermissions.AfterPermissionGranted;
@@ -53,6 +56,8 @@ public class MainActivity extends Activity
     private Button mCallApiButton;
     ProgressDialog mProgress;
 
+    private static final String TAG = "com.example.api";
+
     static final int REQUEST_ACCOUNT_PICKER = 1000;
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
@@ -61,7 +66,22 @@ public class MainActivity extends Activity
     private static final String BUTTON_TEXT = "Call Google Calendar API";
     private static final String PREF_ACCOUNT_NAME = "accountName";
     private static final String[] SCOPES = { CalendarScopes.CALENDAR_READONLY };
+    private List<Classes> myClasses = new ArrayList<Classes>();
+    public class Classes{
+        String date;
+        String stime;
+        String etime;
+        String class_name;
 
+
+
+        public Classes(String sTime, String eTime, String mDate, String mClass_name){
+            date = mDate;
+            stime = sTime;
+            etime = eTime;
+            class_name = mClass_name;
+        }
+    }
     /**
      * Create the main activity.
      * @param savedInstanceState previously saved instance data.
@@ -89,6 +109,7 @@ public class MainActivity extends Activity
                 mCallApiButton.setEnabled(false);
                 mOutputText.setText("");
                 getResultsFromApi();
+
                 mCallApiButton.setEnabled(true);
             }
         });
@@ -356,25 +377,82 @@ public class MainActivity extends Activity
             DateTime now = new DateTime(System.currentTimeMillis());
             List<String> eventStrings = new ArrayList<String>();
             Events events = mService.events().list("primary")
-                    .setMaxResults(10)
+                    .setMaxResults(12)
                     .setTimeMin(now)
                     .setOrderBy("startTime")
                     .setSingleEvents(true)
                     .execute();
             List<Event> items = events.getItems();
-
+            List<Classes> myClasses = new ArrayList<Classes>();
             for (Event event : items) {
+
                 DateTime start = event.getStart().getDateTime();
+                DateTime end = event.getEnd().getDateTime ();
                 if (start == null) {
                     // All-day events don't have start times, so just use
                     // the start date.
                     start = event.getStart().getDate();
+                } //else get end time..but we won't because assume there's ALWAYS an end time. no all day classes.
+
+
+                String myStart = start.toString();  // 2018-03-29T12:20:00.000-07:00
+                String myEnd = end.toString();  //The strings to work with. split by 'T'.
+
+                String[] splitStart = myStart.split("T");
+                String[] splitEnd = myEnd.split("T");
+
+                String mStartDate = splitStart[0];
+                String betaTime = splitStart[1];
+                String mStartTime = betaTime
+
+                String mEndDate = splitEnd[0];
+                String mEndTime = splitEnd[1];
+
+                //create current date to compare in if-statement
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                String currentDate = sdf.format(new Date());
+                String mClass = event.getSummary();
+                Log.i(TAG,  "Date current is " + currentDate);
+                Log.i(TAG,  "mStartDate is " + mStartDate);
+                Log.i(TAG, "mStartDate == currentDate? " + currentDate.equals(mStartDate));
+                if(mStartDate.equals(currentDate)){
+                    Classes mClasses = new Classes(mStartTime, mEndTime, mStartDate,mClass);
+
+                    myClasses.add(mClasses);
+                    Log.i(TAG,  "Size of myClasses is:  " + myClasses.get(0).class_name);
+
                 }
+
+
+                //Log.i(TAG, "My end is: " + myEnd );
                 eventStrings.add(
-                        String.format("%s (%s)", event.getSummary(), start));
+                        String.format("%s (%s)", start, end));
+
+                Log.i(TAG,  "Size of myClasses is:  " + myClasses.size());
             }
+            //Log.i(TAG, "eventStrings is: " + eventStrings );
+           for(int i=0; i < myClasses.size();i++){
+
+                Log.i(TAG, Integer.toString(i) + "'s class_name is: " + myClasses.get(i).class_name);
+                Log.i(TAG, Integer.toString(i) + "'s stime is: " + myClasses.get(i).stime);
+                Log.i(TAG, Integer.toString(i) + "'s etime is: " + myClasses.get(i).etime);
+                Log.i(TAG, Integer.toString(i) + "'s date is: " + myClasses.get(i).date);
+
+                Log.i(TAG, "eventStrings is: " + eventStrings );
+            }
+            // eventStrings is gotten. Now, print it out
+            //Log.i(TAG, "eventStrings is: " + eventStrings );
+            //List<Classes> myClasses = new ArrayList<Classes>();
+
+
+
+
+
             return eventStrings;
         }
+
+        //
 
 
         @Override
