@@ -36,6 +36,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -54,6 +55,7 @@ public class MainActivity extends Activity
     GoogleAccountCredential mCredential;
     private TextView mOutputText;
     private Button mCallApiButton;
+    private EditText mUserLogin;
     ProgressDialog mProgress;
 
     private static final String TAG = "com.example.api";
@@ -109,12 +111,16 @@ public class MainActivity extends Activity
                 mCallApiButton.setEnabled(false);
                 mOutputText.setText("");
                 getResultsFromApi();
-
+               // Intent i = new Intent(this, Login)
                 mCallApiButton.setEnabled(true);
             }
         });
-        activityLayout.addView(mCallApiButton);
 
+        mUserLogin = new EditText(this);
+
+        activityLayout.addView(mUserLogin);
+        activityLayout.addView(mCallApiButton);
+/*
         mOutputText = new TextView(this);
         mOutputText.setLayoutParams(tlp);
         mOutputText.setPadding(16, 16, 16, 16);
@@ -123,7 +129,7 @@ public class MainActivity extends Activity
         mOutputText.setText(
                 "Click the \'" + BUTTON_TEXT +"\' button to test the API.");
         activityLayout.addView(mOutputText);
-
+*/
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Calling Google Calendar API ...");
 
@@ -403,10 +409,11 @@ public class MainActivity extends Activity
 
                 String mStartDate = splitStart[0];
                 String betaTime = splitStart[1];
-                String mStartTime = betaTime
+                String mStartTime = betaTime.substring(0,8);
 
                 String mEndDate = splitEnd[0];
-                String mEndTime = splitEnd[1];
+                String betaEnd = splitEnd[1];
+                String mEndTime = betaEnd.substring(0,8);
 
                 //create current date to compare in if-statement
 
